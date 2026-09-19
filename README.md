@@ -43,3 +43,12 @@ See `examples/PartnerReceiver.swift` and the implementation guide on the site.
 ## Current support note
 
 `partnerEvent` is accepted by the current Halo manifest codec, but external partner-event ingress is not enabled yet. The builder flags this as a warning instead of presenting it as an end-to-end trigger.
+
+
+## Included examples
+
+- `examples/HaloIntegration.example.json` — complete protocol-v2 manifest.
+- `examples/PartnerReceiver.swift` — macOS `NSApplicationDelegate` receiver that batches Launch Services URL callbacks and decodes Halo requests.
+- `examples/InfoPlist.halorequest.xml` — document-type and UTI registration snippet for `.halorequest`.
+
+The live builder itself is served by `index.html`, `styles.css`, and `app.js`.
