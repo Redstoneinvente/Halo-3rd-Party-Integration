@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#0a0a0b" />
+  <title>Halo Integration Manifest Builder</title>
+  <meta name="description" content="Build a Halo protocol-v2 HaloIntegration.json manifest for your macOS app." />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="glow glow-a"></div>
+  <div class="glow glow-b"></div>
+
+  <header class="topbar">
+    <a class="brand" href="#top" aria-label="Halo Integration Builder home">
+      <span class="brand-mark">◌</span>
+      <span>Halo Integration Builder</span>
+    </a>
+    <div class="top-actions">
+      <button class="ghost small" id="importBtn">Import JSON</button>
+      <button class="ghost small" id="loadTemplateTop">Load example</button>
+      <a class="primary small" href="#builder">Build manifest</a>
+      <input id="importFile" type="file" accept="application/json,.json" hidden />
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero shell">
+      <div class="eyebrow">HALO INTEGRATION PROTOCOL · v2</div>
+      <h1>Connect your app to Halo.<br><span>Actions, triggers, and delivery included.</span></h1>
+      <p class="hero-copy">Describe what your macOS app can do, what input each action accepts, what should activate it, and how Halo should deliver requests. The builder generates a <code>HaloIntegration.json</code> that matches Halo's current protocol-v2 decoder.</p>
+      <div class="hero-actions">
+        <a href="#builder" class="primary">Create my manifest</a>
+        <a href="#implementation" class="ghost">Implementation guide</a>
+      </div>
+      <div class="hero-flow">
+        <div><b>1</b><span>App identity</span></div><i>→</i>
+        <div><b>2</b><span>Actions & inputs</span></div><i>→</i>
+        <div><b>3</b><span>Triggers</span></div><i>→</i>
+        <div><b>4</b><span>Receive requests</span></div>
+      </div>
+    </section>
+
+    <section class="shell grid" id="builder">
+      <div class="panel form-panel">
+        <div class="panel-heading">
+          <div>
+            <div class="eyebrow">MANIFEST BUILDER</div>
+            <h2>App details</h2>
+          </div>
+          <button class="ghost tiny" id="resetBtn">Reset</button>
+        </div>
+
+        <label>
+          App name
+          <input id="appName" type="text" placeholder="File Converter" autocomplete="off" />
+        </label>
+
+        <label>
+          Bundle identifier
+          <input id="bundleIdentifier" type="text" placeholder="com.yourcompany.yourapp" autocomplete="off" spellcheck="false" />
+          <span class="hint">Must exactly match the built app's <code>CFBundleIdentifier</code>.</span>
+        </label>
+
+        <div class="section-title-row">
+          <div>
+            <h3>Actions</h3>
+            <p>Each action declares its own input contract and typed options. File actions must list accepted extensions because Halo uses them for drag eligibility.</p>
+          </div>
+          <button class="primary tiny" id="addActionBtn">+ Add action</button>
+        </div>
+        <div id="actions"></div>
+
+        <div class="section-title-row section-break">
+          <div>
+            <h3>Triggers</h3>
+            <p>Triggers decide when an integration becomes eligible. A <code>fileDrag</code> trigger must reference one or more file-input actions.</p>
+          </div>
+          <button class="primary tiny" id="addTriggerBtn">+ Add trigger</button>
+        </div>
+        <div id="triggers"></div>
+
+        <div class="delivery-card">
+          <div>
+            <div class="eyebrow">DELIVERY</div>
+            <h3>openRequest</h3>
+            <p>Current Halo builds deliver a temporary <code>.halorequest</code> plus the authorized input files through the normal macOS open-URL flow.</p>
+          </div>
+          <span class="locked-pill">Required today</span>
+        </div>
+      </div>
+
+      <aside class="panel preview-panel">
+        <div class="preview-top">
+          <div>
+            <div class="eyebrow">LIVE OUTPUT</div>
+            <h2>HaloIntegration.json</h2>
+          </div>
+          <span class="status" id="statusPill" data-state="ready">Ready</span>
+        </div>
+        <pre class="code" id="jsonPreview"></pre>
+        <div class="button-row">
+          <button class="primary" id="downloadBtn">Download JSON</button>
+          <button class="ghost" id="copyJsonBtn">Copy JSON</button>
+        </div>
+        <div class="button-row secondary-row">
+          <button class="ghost" id="loadTemplateBtn">Load example</button>
+          <button class="ghost" id="downloadTemplateBtn">Download template</button>
+        </div>
+        <div class="validation-box" id="validationMessages"></div>
+      </aside>
+    </section>
+
+    <section class="shell" id="implementation">
+      <div class="section-head">
+        <div class="eyebrow">IMPLEMENTATION</div>
+        <h2>Ship the manifest, then receive Halo actions</h2>
+        <p>Discovery and invocation are separate. The manifest tells Halo what your app supports; your app still needs to receive the request and perform the declared action.</p>
+      </div>
+
+      <div class="steps four">
+        <article class="step-card">
+          <span class="step-no">01</span>
+          <h3>Add the JSON to Xcode</h3>
+          <p>Drag <code>HaloIntegration.json</code> into your project. Enable <strong>Copy items if needed</strong> and select the macOS app target.</p>
+        </article>
+        <article class="step-card">
+          <span class="step-no">02</span>
+          <h3>Confirm bundle resource</h3>
+          <p>In <strong>Build Phases → Copy Bundle Resources</strong>, verify that <code>HaloIntegration.json</code> is present.</p>
+        </article>
+        <article class="step-card">
+          <span class="step-no">03</span>
+          <h3>Register Halo requests</h3>
+          <p>Register the <code>.halorequest</code> document type so macOS can deliver Halo's request envelope to your app.</p>
+        </article>
+        <article class="step-card">
+          <span class="step-no">04</span>
+          <h3>Handle opened URLs</h3>
+          <p>Decode the request, resolve <code>actionID</code>, then perform the action using the other file URLs supplied in the same open request.</p>
+        </article>
+      </div>
+
+      <div class="path-card">
+        <span>Halo discovers the manifest at</span>
+        <div class="path">YourApp.app/Contents/Resources/HaloIntegration.json</div>
+      </div>
+
+      <div class="note warning-note">
+        <strong>Important:</strong> A valid manifest only makes your app discoverable/configurable. If you do not implement the <code>.halorequest</code> receiver, Halo can still open/send files to your app, but your app will not know which declared action Halo requested.
+      </div>
+    </section>
+
+    <section class="shell two-col code-reference">
+      <div class="panel">
+        <div class="panel-heading">
+          <div>
+            <div class="eyebrow">SWIFT</div>
+            <h2>Receive Halo actions</h2>
+          </div>
+          <button class="ghost tiny" id="copyReceiverBtn">Copy</button>
+        </div>
+        <pre class="code code-medium" id="receiverPreview"></pre>
+      </div>
+
+      <div class="panel">
+        <div class="panel-heading">
+          <div>
+            <div class="eyebrow">INFO.PLIST</div>
+            <h2>Register .halorequest</h2>
+          </div>
+          <button class="ghost tiny" id="copyPlistBtn">Copy</button>
+        </div>
+        <pre class="code code-medium" id="plistPreview"></pre>
+      </div>
+    </section>
+
+    <section class="shell two-col code-reference">
+      <div class="panel">
+        <div class="panel-heading">
+          <div>
+            <div class="eyebrow">REFERENCE</div>
+            <h2>Protocol-v2 template</h2>
+          </div>
+          <button class="ghost tiny" id="copyTemplateBtn">Copy</button>
+        </div>
+        <pre class="code code-medium" id="templatePreview"></pre>
+      </div>
+
+      <div class="panel">
+        <div class="panel-heading">
+          <div>
+            <div class="eyebrow">SWIFT</div>
+            <h2>Manifest models</h2>
+          </div>
+          <button class="ghost tiny" id="copySwiftBtn">Copy</button>
+        </div>
+        <pre class="code code-medium" id="swiftPreview"></pre>
+      </div>
+    </section>
+
+    <section class="shell protocol-card">
+      <div>
+        <div class="eyebrow">CURRENT HALO CONTRACT</div>
+        <h2>Schema at a glance</h2>
+      </div>
+      <div class="schema-table-wrap">
+        <table>
+          <thead><tr><th>Field</th><th>Type</th><th>Current behavior</th></tr></thead>
+          <tbody>
+            <tr><td><code>protocolVersion</code></td><td>Integer</td><td>Use <code>2</code> for new integrations. Halo still normalizes v1 for compatibility.</td></tr>
+            <tr><td><code>app.name</code></td><td>String</td><td>Human-readable application name.</td></tr>
+            <tr><td><code>app.bundleIdentifier</code></td><td>String</td><td>Must exactly match the containing macOS app bundle.</td></tr>
+            <tr><td><code>actions[].id</code></td><td>Identifier</td><td>Stable action identity used for configuration and delivery.</td></tr>
+            <tr><td><code>actions[].input.type</code></td><td><code>none | files</code></td><td>Declares whether the action needs selected files.</td></tr>
+            <tr><td><code>actions[].input.extensions</code></td><td>String[]</td><td>Required for functional file actions. No dots; <code>*</code> means any extension.</td></tr>
+            <tr><td><code>actions[].input.multiple</code></td><td>Boolean</td><td>When false, a multi-file drag is not eligible for that action.</td></tr>
+            <tr><td><code>actions[].options[].default</code></td><td>Typed value?</td><td>Optional default must match the option's declared type.</td></tr>
+            <tr><td><code>triggers[].type</code></td><td>Enum</td><td><code>fileDrag</code>, <code>keyboardShortcut</code>, <code>manual</code>, or schema-valid <code>partnerEvent</code>.</td></tr>
+            <tr><td><code>triggers[].actions</code></td><td>String[]</td><td>References stable action IDs. <code>fileDrag</code> may reference only file-input actions.</td></tr>
+            <tr><td><code>triggers[].eventName</code></td><td>Identifier?</td><td>Required for <code>partnerEvent</code>. External event ingress is not active yet.</td></tr>
+            <tr><td><code>delivery.type</code></td><td>String</td><td>Current supported value: <code>openRequest</code>.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="shell limits-card">
+      <div class="eyebrow">VALIDATION LIMITS</div>
+      <h2>The builder checks the same important limits Halo enforces</h2>
+      <div class="limit-grid">
+        <div><b>256 KB</b><span>maximum manifest size</span></div>
+        <div><b>64</b><span>maximum actions</span></div>
+        <div><b>32</b><span>maximum options per action</span></div>
+        <div><b>32</b><span>maximum triggers</span></div>
+      </div>
+    </section>
+
+    <footer class="shell footer">
+      <span>Halo Integration Protocol v2</span>
+      <span>Built for third-party macOS integrations.</span>
+    </footer>
+  </main>
+
+  <div class="toast" id="toast">Copied</div>
+  <script src="app.js"></script>
+</body>
+</html>
