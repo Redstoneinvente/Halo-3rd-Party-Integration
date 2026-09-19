@@ -57,3 +57,26 @@ input[type=checkbox]{width:16px;height:16px;accent-color:#9182ff}.hint{display:b
 [hidden]{display:none!important}
 @media(max-width:980px){.grid{grid-template-columns:1fr}.preview-panel{position:static}.steps.four{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:720px){.shell{width:min(calc(100% - 24px),1180px)}.topbar{padding-inline:12px}.top-actions .ghost{display:none}.hero{padding-top:64px}h1{font-size:clamp(42px,14vw,66px)}.hero-copy{font-size:16px}.action-grid,.trigger-grid,.option-grid,.two-col,.steps,.steps.four,.limit-grid{grid-template-columns:1fr}.panel{padding:16px}.section-title-row,.panel-heading,.preview-top,.options-title-row,.delivery-card{align-items:flex-start}.section-title-row,.options-title-row,.delivery-card{flex-direction:column}.code{min-height:300px}.footer{flex-direction:column}}
+
+
+/* Partner CI card artwork */
+.card-appearance-heading{margin-bottom:14px}
+.card-appearance-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,.86fr);gap:14px;margin-bottom:22px}
+.card-artwork-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.banner-spec-card{border:1px solid rgba(255,255,255,.075);border-radius:15px;background:rgba(255,255,255,.025);overflow:hidden}
+.banner-spec-preview{aspect-ratio:20/9;margin:12px;border-radius:12px;border:1px dashed rgba(154,140,255,.48);background:
+linear-gradient(135deg,rgba(154,140,255,.16),rgba(109,231,255,.08)),#090a0d;
+display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background-size:cover;background-position:center;overflow:hidden}
+.banner-spec-preview span{font-size:21px;font-weight:800;letter-spacing:-.04em;color:#dcd8ff}
+.banner-spec-preview small{font-size:11px;color:#8d91a0}
+.banner-spec-preview.has-image{border-style:solid}
+.banner-spec-copy{padding:2px 14px 14px}.banner-spec-copy h4{margin:5px 0 7px;font-size:15px}.banner-spec-copy p{margin:0 0 12px;color:var(--muted);font-size:12px}
+.banner-preview-button{display:inline-flex;align-items:center;cursor:pointer}
+.banner-dimension-status{margin-top:9px;font-size:11px;color:#80848f}
+.banner-dimension-status[data-state=good]{color:var(--good)}
+.banner-dimension-status[data-state=warning]{color:var(--warn)}
+.banner-dimension-status[data-state=error]{color:var(--bad)}
+.steps.five{grid-template-columns:repeat(5,1fr)}
+@media(max-width:1100px){.steps.five{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:980px){.card-appearance-grid{grid-template-columns:1fr}.steps.five{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:720px){.card-artwork-form,.steps.five{grid-template-columns:1fr}}
