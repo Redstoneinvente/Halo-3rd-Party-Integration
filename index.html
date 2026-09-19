@@ -63,6 +63,58 @@
           <span class="hint">Must exactly match the built app's <code>CFBundleIdentifier</code>.</span>
         </label>
 
+        <div class="section-title-row section-break card-appearance-heading">
+          <div>
+            <h3>Partner card appearance</h3>
+            <p>Optional metadata Halo can use to present your integration like a built-in Context Interface card.</p>
+          </div>
+        </div>
+
+        <div class="card-appearance-grid">
+          <div class="card-artwork-form">
+            <label>
+              Card category
+              <input id="cardCategory" type="text" placeholder="File Tools" maxlength="40" />
+              <span class="hint">Short subtitle shown beneath the integration name.</span>
+            </label>
+
+            <label>
+              Short description
+              <input id="cardDescription" type="text" placeholder="Convert and process files directly from Halo." maxlength="160" />
+              <span class="hint">Keep it concise; this is the summary shown on the CI card.</span>
+            </label>
+
+            <label>
+              Banner resource filename
+              <input id="cardBanner" type="text" placeholder="HaloCardBanner.png" spellcheck="false" />
+              <span class="hint">Add this image to your macOS app target as a bundle resource.</span>
+            </label>
+
+            <label>
+              Accent color <span class="optional">Optional</span>
+              <input id="cardAccent" type="text" placeholder="#1E7BFF" spellcheck="false" />
+              <span class="hint">Hex RGB, for example <code>#1E7BFF</code>.</span>
+            </label>
+          </div>
+
+          <div class="banner-spec-card">
+            <div class="banner-spec-preview" id="bannerPreview">
+              <span>1200 × 540</span>
+              <small>Partner CI banner</small>
+            </div>
+            <div class="banner-spec-copy">
+              <div class="eyebrow">RECOMMENDED BANNER</div>
+              <h4>1200 × 540 px · 2.22:1</h4>
+              <p>PNG preferred. Keep important content inside the centered <strong>1040 × 420 px safe area</strong>. Avoid tiny text and edge-aligned logos.</p>
+              <label class="ghost tiny banner-preview-button">
+                Preview an image
+                <input id="bannerPreviewInput" type="file" accept="image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp" hidden />
+              </label>
+              <div class="banner-dimension-status" id="bannerDimensionStatus">No preview selected.</div>
+            </div>
+          </div>
+        </div>
+
         <div class="section-title-row">
           <div>
             <h3>Actions</h3>
@@ -119,7 +171,7 @@
         <p>Discovery and invocation are separate. The manifest tells Halo what your app supports; your app still needs to receive the request and perform the declared action.</p>
       </div>
 
-      <div class="steps four">
+      <div class="steps five">
         <article class="step-card">
           <span class="step-no">01</span>
           <h3>Add the JSON to Xcode</h3>
@@ -132,11 +184,16 @@
         </article>
         <article class="step-card">
           <span class="step-no">03</span>
+          <h3>Add card artwork</h3>
+          <p>If your manifest declares a banner, add that image to the app target too. Recommended: <strong>1200 × 540 PNG</strong>, with key content inside a 1040 × 420 safe area.</p>
+        </article>
+        <article class="step-card">
+          <span class="step-no">04</span>
           <h3>Register Halo requests</h3>
           <p>Register the <code>.halorequest</code> document type so macOS can deliver Halo's request envelope to your app.</p>
         </article>
         <article class="step-card">
-          <span class="step-no">04</span>
+          <span class="step-no">05</span>
           <h3>Handle opened URLs</h3>
           <p>Decode the request, resolve <code>actionID</code>, then perform the action using the other file URLs supplied in the same open request.</p>
         </article>
@@ -149,6 +206,9 @@
 
       <div class="note warning-note">
         <strong>Important:</strong> A valid manifest only makes your app discoverable/configurable. If you do not implement the <code>.halorequest</code> receiver, Halo can still open/send files to your app, but your app will not know which declared action Halo requested.
+      </div>
+      <div class="note">
+        <strong>Card artwork compatibility:</strong> The <code>presentation</code> block is additive metadata. Current Halo protocol decoding safely ignores unknown fields, so manifests containing it remain compatible even before a Halo build consumes the partner-card artwork.
       </div>
     </section>
 
@@ -212,6 +272,10 @@
             <tr><td><code>protocolVersion</code></td><td>Integer</td><td>Use <code>2</code> for new integrations. Halo still normalizes v1 for compatibility.</td></tr>
             <tr><td><code>app.name</code></td><td>String</td><td>Human-readable application name.</td></tr>
             <tr><td><code>app.bundleIdentifier</code></td><td>String</td><td>Must exactly match the containing macOS app bundle.</td></tr>
+            <tr><td><code>presentation.card.bannerImage</code></td><td>String?</td><td>Optional bundle-resource filename for the partner CI card banner. Recommended artwork size: 1200 × 540 px.</td></tr>
+            <tr><td><code>presentation.card.category</code></td><td>String?</td><td>Short card subtitle/category, up to 40 characters in this builder.</td></tr>
+            <tr><td><code>presentation.card.description</code></td><td>String?</td><td>Short partner-facing CI description, up to 160 characters.</td></tr>
+            <tr><td><code>presentation.card.accentColor</code></td><td>#RRGGBB?</td><td>Optional accent hint for the card.</td></tr>
             <tr><td><code>actions[].id</code></td><td>Identifier</td><td>Stable action identity used for configuration and delivery.</td></tr>
             <tr><td><code>actions[].input.type</code></td><td><code>none | files</code></td><td>Declares whether the action needs selected files.</td></tr>
             <tr><td><code>actions[].input.extensions</code></td><td>String[]</td><td>Required for functional file actions. No dots; <code>*</code> means any extension.</td></tr>
