@@ -1,0 +1,36 @@
+<key>CFBundleDocumentTypes</key>
+<array>
+  <dict>
+    <key>CFBundleTypeName</key>
+    <string>Halo Request</string>
+    <key>CFBundleTypeRole</key>
+    <string>Viewer</string>
+    <key>LSItemContentTypes</key>
+    <array>
+      <string>com.redstoneinvente.halorequest</string>
+    </array>
+  </dict>
+</array>
+
+<key>UTExportedTypeDeclarations</key>
+<array>
+  <dict>
+    <key>UTTypeConformsTo</key>
+    <array>
+      <string>public.json</string>
+    </array>
+    <key>UTTypeDescription</key>
+    <string>Halo Integration Request</string>
+    <key>UTTypeIdentifier</key>
+    <string>com.redstoneinvente.halorequest</string>
+    <key>UTTypeTagSpecification</key>
+    <dict>
+      <key>public.filename-extension</key>
+      <array>
+        <string>halorequest</string>
+      </array>
+      <key>public.mime-type</key>
+      <string>application/json</string>
+    </dict>
+  </dict>
+</array>
