@@ -8,6 +8,7 @@ The builder emits the current Halo `HaloIntegration.json` shape:
 
 - `protocolVersion: 2`
 - `app.name` + exact `app.bundleIdentifier`
+- optional partner-card presentation metadata under `presentation.card`
 - typed `actions`
 - explicit action `input` (`none` or `files`)
 - file extensions and single/multiple-file behavior
@@ -17,6 +18,37 @@ The builder emits the current Halo `HaloIntegration.json` shape:
 - `delivery.type: "openRequest"`
 
 It also validates the important limits currently enforced by Halo: 256 KB manifest size, 64 actions, 32 options per action, 32 triggers, identifier syntax, extension syntax, trigger/action references, file-drag compatibility, and option-default types.
+
+## Partner CI card artwork
+
+Partners can provide artwork so their integration can be presented using the same visual card treatment as Halo's built-in Context Interfaces.
+
+Recommended banner specification:
+
+- **1200 × 540 px**
+- **2.22:1 aspect ratio**
+- **PNG preferred**
+- keep important content inside a centered **1040 × 420 px safe area**
+- avoid tiny text and placing logos against the outer edges
+
+The builder writes optional presentation metadata like:
+
+```json
+"presentation": {
+  "card": {
+    "bannerImage": "HaloCardBanner.png",
+    "category": "File Tools",
+    "description": "Convert and process files directly from Halo.",
+    "accentColor": "#1E7BFF"
+  }
+}
+```
+
+`bannerImage` is a **bundle resource filename**, not an absolute path or URL. Add the image to the macOS app target alongside `HaloIntegration.json`.
+
+The presentation block is additive. Current Halo protocol decoding safely ignores unknown fields, so a manifest containing this metadata remains compatible even before a Halo build consumes partner-card artwork.
+
+See `docs/CardArtwork.md` for the full asset guidance.
 
 ## Bundle location
 
@@ -50,5 +82,6 @@ See `examples/PartnerReceiver.swift` and the implementation guide on the site.
 - `examples/HaloIntegration.example.json` — complete protocol-v2 manifest.
 - `examples/PartnerReceiver.swift` — macOS `NSApplicationDelegate` receiver that batches Launch Services URL callbacks and decodes Halo requests.
 - `examples/InfoPlist.halorequest.xml` — document-type and UTI registration snippet for `.halorequest`.
+- `docs/CardArtwork.md` — partner CI banner/card artwork specification.
 
 The live builder itself is served by `index.html`, `styles.css`, and `app.js`.
