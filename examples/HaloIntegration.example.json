@@ -10,7 +10,12 @@
       "name": "Convert Image",
       "input": {
         "type": "files",
-        "extensions": ["jpg", "jpeg", "heic", "webp"],
+        "extensions": [
+          "jpg",
+          "jpeg",
+          "heic",
+          "webp"
+        ],
         "multiple": true
       },
       "options": [
@@ -43,7 +48,9 @@
       "name": "Compress",
       "input": {
         "type": "files",
-        "extensions": ["*"],
+        "extensions": [
+          "*"
+        ],
         "multiple": true
       },
       "options": []
@@ -53,15 +60,29 @@
     {
       "id": "files.dragged",
       "type": "fileDrag",
-      "actions": ["convert.image", "compress"]
+      "actions": [
+        "convert.image",
+        "compress"
+      ]
     },
     {
       "id": "open.shortcut",
       "type": "keyboardShortcut",
-      "actions": ["convert.image", "compress"]
+      "actions": [
+        "convert.image",
+        "compress"
+      ]
     }
   ],
   "delivery": {
     "type": "openRequest"
+  },
+  "presentation": {
+    "card": {
+      "bannerImage": "HaloCardBanner.png",
+      "category": "File Tools",
+      "description": "Convert, compress, and process files directly from Halo.",
+      "accentColor": "#1E7BFF"
+    }
   }
 }
