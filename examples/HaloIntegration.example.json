@@ -1,0 +1,67 @@
+{
+  "protocolVersion": 2,
+  "app": {
+    "name": "File Converter",
+    "bundleIdentifier": "com.yourcompany.fileconverter"
+  },
+  "actions": [
+    {
+      "id": "convert.image",
+      "name": "Convert Image",
+      "input": {
+        "type": "files",
+        "extensions": ["jpg", "jpeg", "heic", "webp"],
+        "multiple": true
+      },
+      "options": [
+        {
+          "key": "format",
+          "name": "Output format",
+          "type": "string",
+          "required": true,
+          "description": "Requested output format, for example png or jpeg."
+        },
+        {
+          "key": "quality",
+          "name": "Quality",
+          "type": "double",
+          "required": false,
+          "default": 0.9,
+          "description": "Compression quality from 0.0 to 1.0."
+        },
+        {
+          "key": "overwrite",
+          "name": "Overwrite existing file",
+          "type": "boolean",
+          "required": false,
+          "default": false
+        }
+      ]
+    },
+    {
+      "id": "compress",
+      "name": "Compress",
+      "input": {
+        "type": "files",
+        "extensions": ["*"],
+        "multiple": true
+      },
+      "options": []
+    }
+  ],
+  "triggers": [
+    {
+      "id": "files.dragged",
+      "type": "fileDrag",
+      "actions": ["convert.image", "compress"]
+    },
+    {
+      "id": "open.shortcut",
+      "type": "keyboardShortcut",
+      "actions": ["convert.image", "compress"]
+    }
+  ],
+  "delivery": {
+    "type": "openRequest"
+  }
+}
