@@ -78,6 +78,14 @@ function showToast(message) {
   const v2Example = {
     protocolVersion: 2,
     app: { name: "File Converter", bundleIdentifier: "com.yourcompany.fileconverter" },
+    presentation: {
+      card: {
+        bannerImage: "HaloCardBanner.png",
+        category: "File Tools",
+        description: "Convert, compress, and process files directly from Halo.",
+        accentColor: "#1E7BFF"
+      }
+    },
     actions: [
       {
         id: "convert.image",
@@ -106,6 +114,14 @@ function showToast(message) {
   const v2Template = {
     protocolVersion: 2,
     app: { name: "Your App Name", bundleIdentifier: "com.yourcompany.yourapp" },
+    presentation: {
+      card: {
+        bannerImage: "HaloCardBanner.png",
+        category: "Your Category",
+        description: "A short description of what this integration does in Halo.",
+        accentColor: "#1E7BFF"
+      }
+    },
     actions: [
       {
         id: "action.id",
@@ -218,11 +234,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 struct HaloIntegrationManifest: Decodable {
     let protocolVersion: Int
     let app: AppIdentity
+    let presentation: Presentation?
     let actions: [Action]
     let triggers: [Trigger]
     let delivery: Delivery
 
     struct AppIdentity: Decodable { let name: String; let bundleIdentifier: String }
+    struct Presentation: Decodable {
+        let card: Card?
+        struct Card: Decodable {
+            let bannerImage: String?
+            let category: String?
+            let description: String?
+            let accentColor: String?
+        }
+    }
     struct Action: Decodable { let id: String; let name: String; let input: Input; let options: [Option] }
     struct Input: Decodable { let type: String; let extensions: [String]?; let multiple: Bool? }
     struct Option: Decodable { let key: String; let name: String; let type: String; let required: Bool; let description: String? }
@@ -238,7 +264,8 @@ struct HaloIntegrationManifest: Decodable {
     return clone;
   }
 
-  ["appName", "bundleIdentifier", "addActionBtn", "resetBtn", "downloadBtn", "copyJsonBtn",
+  ["appName", "bundleIdentifier", "cardCategory", "cardDescription", "cardBanner", "cardAccent",
+   "addActionBtn", "resetBtn", "downloadBtn", "copyJsonBtn",
    "loadTemplateBtn", "loadTemplateTop", "downloadTemplateBtn", "copyTemplateBtn", "copySwiftBtn"]
     .forEach(fresh);
 
@@ -407,13 +434,42 @@ struct HaloIntegrationManifest: Decodable {
       if (type === "partnerEvent" && eventName) trigger.eventName = eventName;
       return trigger;
     });
-    return { manifest: { protocolVersion: 2, app: { name: $("appName").value.trim(), bundleIdentifier: $("bundleIdentifier").value.trim() }, actions, triggers, delivery: { type: "openRequest" } }, issues };
+    const card = {
+      bannerImage: $("cardBanner").value.trim(),
+      category: $("cardCategory").value.trim(),
+      description: $("cardDescription").value.trim(),
+      accentColor: $("cardAccent").value.trim()
+    };
+    Object.keys(card).forEach(key => { if (!card[key]) delete card[key]; });
+
+    const manifest = {
+      protocolVersion: 2,
+      app: { name: $("appName").value.trim(), bundleIdentifier: $("bundleIdentifier").value.trim() },
+      actions,
+      triggers,
+      delivery: { type: "openRequest" }
+    };
+    if (Object.keys(card).length) manifest.presentation = { card };
+
+    return { manifest, issues };
   }
 
   function validateV2(manifest, issues) {
     const errors = [...issues], warnings = [];
     if (!manifest.app.name) errors.push("App name is required.");
     if (!manifest.app.bundleIdentifier) errors.push("Bundle identifier is required.");
+    const card = manifest.presentation?.card;
+    if (card) {
+      if (card.category && card.category.length > 40) errors.push("Card category must be 40 characters or fewer.");
+      if (card.description && card.description.length > 160) errors.push("Card description must be 160 characters or fewer.");
+      if (card.bannerImage) {
+        if (card.bannerImage.includes("/") || card.bannerImage.includes("\\")) errors.push("Banner image must be a bundle resource filename, not a path.");
+        const ext = card.bannerImage.split(".").pop()?.toLowerCase() || "";
+        if (!["png", "jpg", "jpeg", "webp"].includes(ext)) errors.push("Banner image must be PNG, JPG, JPEG, or WebP.");
+      }
+      if (card.accentColor && !/^#[0-9A-Fa-f]{6}$/.test(card.accentColor)) errors.push("Card accent color must use #RRGGBB.");
+      warnings.push("Partner card presentation metadata is forward-compatible; current Halo builds may ignore it until partner CI card artwork rendering is enabled.");
+    }
     if (!manifest.actions.length) errors.push("Add at least one action.");
     if (manifest.actions.length > MAX_ACTIONS) errors.push(`Halo supports at most ${MAX_ACTIONS} actions.`);
     const actionIDs = new Set(), byID = new Map();
@@ -502,6 +558,12 @@ struct HaloIntegrationManifest: Decodable {
     if (!manifest || manifest.protocolVersion !== 2 || !manifest.app) { showToast("Only Halo protocol v1 or v2 manifests can be imported"); return; }
     $("appName").value = manifest.app.name || "";
     $("bundleIdentifier").value = manifest.app.bundleIdentifier || "";
+    const card = manifest.presentation?.card || {};
+    $("cardCategory").value = card.category || "";
+    $("cardDescription").value = card.description || "";
+    $("cardBanner").value = card.bannerImage || "";
+    $("cardAccent").value = card.accentColor || "";
+    clearBannerPreview();
     clearV2();
     (manifest.actions || []).forEach(v2AddAction);
     (manifest.triggers || []).forEach(v2AddTrigger);
@@ -519,9 +581,22 @@ struct HaloIntegrationManifest: Decodable {
 
   $("appName").addEventListener("input", v2Render);
   $("bundleIdentifier").addEventListener("input", v2Render);
+  ["cardCategory", "cardDescription", "cardBanner", "cardAccent"].forEach(id => $(id).addEventListener("input", v2Render));
   $("addActionBtn").addEventListener("click", () => v2AddAction());
   $("addTriggerBtn").addEventListener("click", () => v2AddTrigger());
-  $("resetBtn").addEventListener("click", () => { $("appName").value = ""; $("bundleIdentifier").value = ""; clearV2(); v2AddAction(); v2AddTrigger({ id: "files.dragged", type: "fileDrag", actions: [] }); v2Render(); });
+  $("resetBtn").addEventListener("click", () => {
+    $("appName").value = "";
+    $("bundleIdentifier").value = "";
+    $("cardCategory").value = "";
+    $("cardDescription").value = "";
+    $("cardBanner").value = "";
+    $("cardAccent").value = "";
+    clearBannerPreview();
+    clearV2();
+    v2AddAction();
+    v2AddTrigger({ id: "files.dragged", type: "fileDrag", actions: [] });
+    v2Render();
+  });
   $("downloadBtn").addEventListener("click", () => { const manifest = exportManifest(); if (manifest) download("HaloIntegration.json", JSON.stringify(manifest, null, 2) + "\n"); });
   $("copyJsonBtn").addEventListener("click", () => { const manifest = exportManifest(); if (manifest) copy(JSON.stringify(manifest, null, 2), "Manifest copied"); });
   $("loadTemplateBtn").addEventListener("click", () => v2Load(v2Example));
@@ -531,6 +606,53 @@ struct HaloIntegrationManifest: Decodable {
   $("copySwiftBtn").addEventListener("click", () => copy(manifestModels, "Swift models copied"));
   $("copyReceiverBtn").addEventListener("click", () => copy(receiverCode, "Receiver copied"));
   $("copyPlistBtn").addEventListener("click", () => copy(plistCode, "Info.plist snippet copied"));
+  function clearBannerPreview() {
+    const preview = $("bannerPreview");
+    preview.style.backgroundImage = "";
+    preview.classList.remove("has-image");
+    preview.innerHTML = "<span>1200 × 540</span><small>Partner CI banner</small>";
+    $("bannerDimensionStatus").textContent = "No preview selected.";
+    $("bannerDimensionStatus").dataset.state = "";
+    $("bannerPreviewInput").value = "";
+  }
+
+  $("bannerPreviewInput").addEventListener("change", event => {
+    const file = event.target.files?.[0];
+    if (!file) { clearBannerPreview(); return; }
+
+    const url = URL.createObjectURL(file);
+    const image = new Image();
+    image.onload = () => {
+      const preview = $("bannerPreview");
+      preview.innerHTML = "";
+      preview.style.backgroundImage = `url("${url}")`;
+      preview.classList.add("has-image");
+
+      const ratio = image.width / image.height;
+      const exact = image.width === 1200 && image.height === 540;
+      const closeRatio = Math.abs(ratio - (1200 / 540)) < 0.03;
+      const status = $("bannerDimensionStatus");
+      status.textContent = exact
+        ? `✓ ${image.width} × ${image.height} — recommended size`
+        : closeRatio
+          ? `${image.width} × ${image.height} — correct aspect ratio; 1200 × 540 is recommended`
+          : `${image.width} × ${image.height} — use a 2.22:1 banner, ideally 1200 × 540`;
+      status.dataset.state = exact ? "good" : closeRatio ? "warning" : "error";
+
+      if (!$("cardBanner").value.trim()) {
+        $("cardBanner").value = file.name;
+        v2Render();
+      }
+      URL.revokeObjectURL(url);
+    };
+    image.onerror = () => {
+      $("bannerDimensionStatus").textContent = "Could not preview this image.";
+      $("bannerDimensionStatus").dataset.state = "error";
+      URL.revokeObjectURL(url);
+    };
+    image.src = url;
+  });
+
   $("importBtn").addEventListener("click", () => $("importFile").click());
   $("importFile").addEventListener("change", async event => {
     const file = event.target.files?.[0]; if (!file) return;
