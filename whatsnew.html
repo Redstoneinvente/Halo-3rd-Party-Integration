@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Halo — What's New Generator</title>
+<style>
+:root{--bg:#08090e;--panel:rgba(255,255,255,.055);--line:rgba(255,255,255,.11);--text:#f7f8fc;--muted:#9ca3b4;--accent:#8067ff;--good:#6be3a7;--bad:#ff7685}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:Inter,-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 14% 8%,rgba(126,91,255,.18),transparent 30%),radial-gradient(circle at 88% 12%,rgba(0,193,255,.11),transparent 26%),var(--bg)}
+main{width:min(1220px,calc(100% - 30px));margin:auto;padding:34px 0 54px}
+header{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:26px}.brand{display:flex;align-items:center;gap:14px}.logo{width:46px;height:46px;border-radius:15px;display:grid;place-items:center;font-size:22px;background:linear-gradient(145deg,rgba(255,255,255,.14),rgba(255,255,255,.045));border:1px solid var(--line);box-shadow:0 14px 38px rgba(0,0,0,.35)}h1{font-size:18px;margin:0}.brand p{font-size:13px;color:var(--muted);margin:4px 0 0}.pill{font-size:12px;color:#ded9ff;padding:8px 11px;border-radius:999px;background:rgba(128,103,255,.12);border:1px solid rgba(128,103,255,.28)}
+.grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(360px,.95fr);gap:22px;align-items:start}.card{background:linear-gradient(180deg,rgba(255,255,255,.065),rgba(255,255,255,.035));border:1px solid var(--line);border-radius:22px;overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,.34);backdrop-filter:blur(20px)}.head{padding:19px 21px 13px;border-bottom:1px solid rgba(255,255,255,.065);display:flex;justify-content:space-between;gap:14px;align-items:center}.head h2{font-size:15px;margin:0}.head small{color:var(--muted);font-size:12px}.body{padding:21px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{margin-bottom:19px}label{display:flex;justify-content:space-between;gap:12px;margin-bottom:8px;font-size:13px;font-weight:650}label span{font-weight:400;color:var(--muted);font-size:11px}input,textarea{width:100%;border:1px solid var(--line);background:rgba(0,0,0,.24);color:var(--text);border-radius:14px;padding:13px 14px;font:inherit;outline:none;transition:.16s}input:focus,textarea:focus{border-color:rgba(128,103,255,.64);box-shadow:0 0 0 4px rgba(128,103,255,.1)}textarea{min-height:290px;resize:vertical;line-height:1.55}.hint{font-size:11px;line-height:1.45;color:var(--muted);margin-top:7px}
+.actions{display:flex;flex-wrap:wrap;gap:9px}button{border:1px solid var(--line);background:rgba(255,255,255,.075);color:var(--text);border-radius:13px;padding:11px 14px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:.15s}button:hover{transform:translateY(-1px);background:rgba(255,255,255,.11)}button.primary{background:linear-gradient(135deg,#8b72ff,#6849ef);box-shadow:0 8px 24px rgba(104,73,239,.28)}button.danger{color:#ffc4cb;background:rgba(255,118,133,.07);border-color:rgba(255,118,133,.18)}.status{min-height:18px;margin-top:10px;font-size:12px;color:var(--muted)}.status.good{color:var(--good)}.status.bad{color:var(--bad)}
+.output{margin-top:17px;border:1px solid rgba(255,255,255,.09);border-radius:16px;overflow:hidden}.outputbar{padding:10px 13px;background:rgba(255,255,255,.045);display:flex;justify-content:space-between;color:var(--muted);font-size:11px}pre{margin:0;padding:15px;min-height:130px;max-height:270px;overflow:auto;background:rgba(0,0,0,.26);font:12px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre-wrap;overflow-wrap:anywhere}
+.previewWrap{padding:21px}.preview{min-height:585px;border-radius:20px;border:1px solid var(--line);background:linear-gradient(135deg,#080a16,#1a0d2d 50%,#071a21);padding:34px 29px;text-align:center}.appicon{width:76px;height:76px;border-radius:22px;margin:0 auto 17px;display:grid;place-items:center;font-size:32px;background:radial-gradient(circle at 35% 25%,rgba(255,255,255,.22),transparent 26%),linear-gradient(145deg,#17131f,#07070a);border:1px solid rgba(255,255,255,.13);box-shadow:0 15px 42px rgba(148,90,255,.24)}.version{font-size:11px;font-weight:750;letter-spacing:.19em;color:#979eaf;margin-bottom:12px}.ptitle{font-size:clamp(28px,4vw,38px);line-height:1.05;letter-spacing:-.04em;margin:0 auto 12px}.psub{font-size:16px;line-height:1.45;color:#aeb4c4;margin:0 auto 24px}.notes{min-height:215px;text-align:left;white-space:pre-wrap;line-height:1.62;padding:18px 19px;border-radius:17px;background:rgba(255,255,255,.065);border:1px solid rgba(255,255,255,.095);overflow-wrap:anywhere}.notes.empty{color:#747b8d;font-style:italic}.footer{text-align:center;color:#707687;font-size:11px;margin-top:25px}
+@media(max-width:900px){.grid{grid-template-columns:1fr}.preview{min-height:520px}}@media(max-width:600px){main{width:min(100% - 20px,1220px);padding-top:18px}.pill{display:none}.row{grid-template-columns:1fr}.body,.previewWrap{padding:15px}.preview{padding:27px 18px}.actions button{flex:1 1 auto}}
+</style>
+</head>
+<body>
+<main>
+<header><div class="brand"><div class="logo">◒</div><div><h1>Halo What's New Generator</h1><p>Create the <code>whatsnew.txt</code> file used by Halo releases.</p></div></div><div class="pill">Static · Runs entirely in your browser</div></header>
+<section class="grid">
+<div class="card"><div class="head"><div><h2>Release content</h2><small>Matches Halo's current What's New parser.</small></div><small id="chars">0 chars</small></div><div class="body">
+<div class="row"><div class="field"><label>Version <span>preview only</span></label><input id="version" value="0.2.6" placeholder="0.2.6"></div><div class="field"><label>Filename <span>recommended</span></label><input id="filename" value="whatsnew.txt"></div></div>
+<div class="field"><label>Headline <span>optional · # heading</span></label><input id="title" maxlength="120" placeholder="Halo just got smarter."></div>
+<div class="field"><label>Subtitle <span>optional · &gt; line</span></label><input id="subtitle" maxlength="180" placeholder="Live Activities, better workspaces, and plenty of polish."></div>
+<div class="field"><label>Release notes <span>plain text</span></label><textarea id="notes" placeholder="Live Activities are now supported.
+
+Visual Workspace has received several improvements.
+
+Closed Notch spacing and margins are more consistent."></textarea><div class="hint">Blank lines are preserved. Halo currently displays the remaining body as plain text.</div></div>
+<div class="actions"><button class="primary" id="download">Download whatsnew.txt</button><button id="copy">Copy text</button><button id="sample">Load sample</button><button class="danger" id="clear">Clear</button></div>
+<div id="status" class="status"></div>
+<div class="output"><div class="outputbar"><span>Generated output</span><span id="lines">0 lines</span></div><pre id="output">(empty)</pre></div>
+</div></div>
+<div class="card"><div class="head"><div><h2>Halo preview</h2><small>Approximation of the current What's New window.</small></div></div><div class="previewWrap"><div class="preview"><div class="appicon">◒</div><div id="pversion" class="version">HALO 0.2.6</div><h3 id="ptitle" class="ptitle">What's new in Halo</h3><p id="psub" class="psub">Version 0.2.6</p><div id="pnotes" class="notes empty">Your release notes will appear here.</div></div></div></div>
+</section>
+<div class="footer">Format: optional <code># Headline</code>, optional <code>&gt; Subtitle</code>, then the release notes body.</div>
+</main>
+<script>
+var el=function(id){return document.getElementById(id)};
+var version=el("version"),filename=el("filename"),title=el("title"),subtitle=el("subtitle"),notes=el("notes"),output=el("output"),status=el("status");
+function norm(v){return v.replace(/\r\n/g,"\n").replace(/\r/g,"\n")}
+function build(){var a=[],t=title.value.trim(),s=subtitle.value.trim(),n=norm(notes.value).trim();if(t)a.push("# "+t);if(s)a.push("> "+s);if((t||s)&&n)a.push("");if(n)a.push(n);return a.join("\n").trim()}
+function errors(){var a=[],f=filename.value.trim();if(!f)a.push("Filename is required.");if(f&&!f.toLowerCase().endsWith(".txt"))a.push("Filename should end in .txt.");if(title.value.indexOf("\n")>=0)a.push("Headline must be one line.");if(subtitle.value.indexOf("\n")>=0)a.push("Subtitle must be one line.");return a}
+function render(){var text=build(),v=version.value.trim()||"0",t=title.value.trim()||"What's new in Halo",s=subtitle.value.trim()||("Version "+v),n=norm(notes.value).trim(),e=errors();output.textContent=text||"(empty)";el("chars").textContent=text.length+" chars";el("lines").textContent=(text?text.split("\n").length:0)+" lines";el("pversion").textContent="HALO "+v;el("ptitle").textContent=t;el("psub").textContent=s;el("pnotes").textContent=n||"Your release notes will appear here.";el("pnotes").classList.toggle("empty",!n);if(e.length){status.textContent=e.join(" ");status.className="status bad"}else if(text){status.textContent="Ready to export.";status.className="status good"}else{status.textContent="Add release notes to generate a file.";status.className="status"}}
+el("copy").onclick=async function(){var text=build();if(!text){status.textContent="Nothing to copy yet.";status.className="status bad";return}try{await navigator.clipboard.writeText(text)}catch(_){var x=document.createElement("textarea");x.value=text;document.body.appendChild(x);x.select();document.execCommand("copy");x.remove()}status.textContent="Copied to clipboard.";status.className="status good"}
+el("download").onclick=function(){var text=build(),e=errors();if(!text){status.textContent="Add some release content first.";status.className="status bad";return}if(e.length){status.textContent=e.join(" ");status.className="status bad";return}var blob=new Blob([text+"\n"],{type:"text/plain;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=filename.value.trim()||"whatsnew.txt";document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);status.textContent="Downloaded "+(filename.value.trim()||"whatsnew.txt")+".";status.className="status good"}
+el("sample").onclick=function(){version.value="0.2.6";filename.value="whatsnew.txt";title.value="Halo just got smarter.";subtitle.value="Live Activities, better workspaces, and plenty of polish.";notes.value="Live Activities are now supported.\n\nVisual Workspace has received several improvements.\n\nClosed Notch spacing and margins are more consistent.\n\nWe've also polished update handling and fixed several smaller issues across Halo.";render()}
+el("clear").onclick=function(){title.value="";subtitle.value="";notes.value="";render();title.focus()}
+;[version,filename,title,subtitle,notes].forEach(function(x){x.addEventListener("input",render)});render();
+</script>
+</body>
+</html>
